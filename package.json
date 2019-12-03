@@ -1,0 +1,19 @@
+{
+  "name": "micro-frontend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/core.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/avengang/micro-front-end.git"
+  },
+  "author": "avengang",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/avengang/micro-front-end/issues"
+  },
+  "homepage": "https://github.com/avengang/micro-front-end#readme"
+}

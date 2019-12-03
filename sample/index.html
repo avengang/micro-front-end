@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <title>Document</title>
+  <style>
+    /* #mpod_root_content {
+      height: 1000px;
+    } */
+  </style>
+  <script src="../src/core.js"></script>
+  <script>
+    mpodId = 'mpod_root'
+    function init() {
+      var hash = location.hash
+      try {
+        urls = JSON.parse(Base64.decode(hash))
+        if(urls['mpod_root_content']) {
+          updateUrl('mpod_root_content', urls['mpod_root_content'])
+        } else {
+          updateUrl('mpod_root_content', 'c/c.html')
+        }
+      } catch (error) {
+        updateUrl('mpod_root_content', 'c/c.html')
+      }
+    }
+    function toggleFn(flag) {
+      var ifm = document.getElementById("mpod_root_content")
+      if(flag === "1") {
+        updateUrl('mpod_root_content', 'b/b.html')
+      } else {
+        updateUrl('mpod_root_content', 'c/c.html')
+      }
+    }
+    function onUpdateUrl(url) {
+      // console.log('---', url)
+      if(url.indexOf('b.html') !== -1) {
+        document.getElementById('goCtrl').style.display = 'none'
+        document.getElementById('goPortal').style.display = 'inline-block'
+      } else {
+        document.getElementById('goCtrl').style.display = 'inline-block'
+        document.getElementById('goPortal').style.display = 'none'
+      }
+    }
+    function unloadCb() {
+      console.log('cb')
+    }
+  </script>
+</head>
+<body onload="init()">
+  <div style="height: 100px; width: 100%; background: green;">
+    <span id="goCtrl" onclick="toggleFn('1')">到控制台</span>
+    <span id="goPortal" onclick="toggleFn('2')" style="display: none;">到门户</span>
+  </div>
+  <iframe src="./c/c.html" id="mpod_root_content" onload="top.registerProject(this)" frameborder="0" height="100%" width="100%" style="float: right;"></iframe>
+</body>
+</html>
