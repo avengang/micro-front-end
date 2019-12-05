@@ -1,6 +1,6 @@
 {
-  "name": "micro-frontend",
-  "version": "1.0.0",
+  "name": "scorneye",
+  "version": "1.0.2",
   "description": "",
   "main": "src/core.js",
   "scripts": {
