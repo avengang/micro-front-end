@@ -159,7 +159,12 @@ function getProjectWindow(projectId) {
   return projectWindows[projectId]
 }
 function updateUrl(projectId, url, notApply) {
-  urls[projectId] = url
+  if(url.indexOf("?") !== -1) {
+    urls[projectId] = url + "&corerandom=" + Math.random()
+  } else {
+    urls[projectId] = url + "?corerandom=" + Math.random()
+  }
+  
   location.hash = Base64.encode(JSON.stringify(urls))
   if(!notApply) {
     setIframeSrc(projectId)
