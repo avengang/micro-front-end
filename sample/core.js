@@ -88,18 +88,21 @@ var Base64 = {
    return t
   }
 }
-
+var rootWindow = null
 var projectWindows = {}
 var projectIframes = {}
 var urls = {}
 var projectGroups = {}
-//TODO:iframe的id必须是整个唯一的：mpod_项目名_任意（如：mpod_yunpan_content)
-mpodId = 'mpod_root'
-function setIframeSrc(projectId) {
-  projectIframes[projectId].src = window.location.protocol + '//'+window.location.host + '/' + urls[projectId]
-  if(projectWindows[projectId].parent) {
-    projectWindows[projectId].parent.onUpdateUrl && projectWindows[projectId].parent.onUpdateUrl(urls[projectId])
+function callUpdate() {
+  for(var w in projectWindows) {
+    rootWindow.onUpdateUrl && rootWindow.onUpdateUrl(urls)
+    projectWindows[w].onUpdateUrl && projectWindows[w].onUpdateUrl(urls)
   }
+}
+//TODO:iframe的id必须是整个唯一的：mpod_项目名_任意（如：mpod_yunpan_content)
+function setIframeSrc(projectId) {
+  projectWindows[projectId].location.replace(window.location.protocol + '//'+window.location.host + '/' + urls[projectId])
+  // projectIframes[projectId].src = window.location.protocol + '//'+window.location.host + '/' + urls[projectId]
 }
 function setGroupState(key, value, groupId) {
   if(projectGroups[groupId]) {
@@ -128,9 +131,10 @@ function registerProject(ifm) {
   var projectId = ifm.id
   var projectWindow = ifm.contentWindow
   projectWindow.addEventListener('unload', function(e) {
-    console.log('delete ', projectId)
-    delete projectIframes[projectId];
-    delete projectWindows[projectId];
+    // console.log('delete ', projectId)
+    // delete projectIframes[projectId];
+    // delete projectWindows[projectId];
+    // delete urls[projectId]
   })
   projectWindow.mpodId = projectId
   // console.log("group:", ifm.getAttribute("projectGroups"), 'register projectId:', projectId)
@@ -158,15 +162,45 @@ function registerProject(ifm) {
 function getProjectWindow(projectId) {
   return projectWindows[projectId]
 }
+function changeUrlArg(url, arg, val){
+  var pattern = arg+'=([^&]*)';
+  var replaceText = arg+'='+val;
+  return url.match(pattern) ? url.replace(eval('/('+ arg+'=)([^&]*)/gi'), replaceText) : (url.match('[\?]') ? url+'&'+replaceText : url+'?'+replaceText);
+}
 function updateUrl(projectId, url, notApply) {
+  var param = Date.now()+Math.random()
   if(url.indexOf("?") !== -1) {
-    urls[projectId] = url + "&corerandom=" + Math.random()
+    if(url.indexOf("corerandom=") !== -1) {
+      changeUrlArg(url, corerandom, param)
+    } else {
+      urls[projectId] = url + "&corerandom=" + param
+    }
   } else {
-    urls[projectId] = url + "?corerandom=" + Math.random()
+    if(url.indexOf("corerandom=") !== -1) {
+      changeUrlArg(url, corerandom, param)
+    } else {
+      urls[projectId] = url + "?corerandom=" + param
+    }
   }
-  
+  // console.log(urls)
   location.hash = Base64.encode(JSON.stringify(urls))
-  if(!notApply) {
-    setIframeSrc(projectId)
-  }
+  // if(!notApply) {
+  //   setIframeSrc(projectId)
+  // }
+}
+function _init(w) {
+  rootWindow = w
+  window.addEventListener('hashchange', function() {
+    // projectWindows[projectId].location.replace(window.location.protocol + '//'+window.location.host + '/' + urls[projectId])
+    urls = JSON.parse(Base64.decode(location.hash))
+    console.log(urls)
+    for(var k in urls) {
+      if(projectWindows[k] && window.location.protocol + '//'+window.location.host + '/' + urls[k] !== projectWindows[k].location.href) {
+        projectWindows[k].location.replace(window.location.protocol + '//'+window.location.host + '/' + urls[k])
+      }
+    }
+    console.log('hashchange', location.hash, rootWindow)
+    // rootWindow.onUpdateUrl && rootWindow.onUpdateUrl(urls)
+    callUpdate()
+  })
 }
